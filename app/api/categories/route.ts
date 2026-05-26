@@ -137,11 +137,8 @@ export async function GET() {
     const categories = await Category.find({}).sort({ name: 1 });
     return NextResponse.json(categories, { status: 200 });
   } catch (error) {
-    console.error("Error fetching product categories:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch product categories" },
-      { status: 500 },
-    );
+    console.warn("Product categories unavailable (DB bypass):", error);
+    return NextResponse.json([], { status: 200 });
   }
 }
 

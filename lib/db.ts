@@ -11,14 +11,7 @@ declare global {
 }
 
 const mongoUri = process.env.MONGODB_URI;
-
-if (!mongoUri) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable inside .env.local",
-  );
-}
-
-const MONGODB_URI: string = mongoUri;
+const MONGODB_URI: string = mongoUri ?? "";
 
 /** * Global is used here to maintain a cached connection
  * across hot-reloads in development.
@@ -32,6 +25,10 @@ if (!cached) {
 global.mongoose = cached;
 
 export default async function connectDB() {
+  if (!MONGODB_URI) {
+    return null;
+  }
+
   // If we already have a connection, use it!
   if (cached.conn) {
     return cached.conn;

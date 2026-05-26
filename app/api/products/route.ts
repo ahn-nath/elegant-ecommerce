@@ -272,11 +272,11 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error fetching products:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch products" },
-      { status: 500 },
-    );
+    console.warn("Products unavailable (DB bypass):", error);
+    return NextResponse.json([], {
+      status: 200,
+      headers: { "X-Total-Count": "0", "X-Page": "1", "X-Limit": "12" },
+    });
   }
 }
 

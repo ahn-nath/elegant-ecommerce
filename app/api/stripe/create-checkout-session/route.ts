@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import connectDB from "@/lib/db";
 import { Cart } from "@/models/Cart";
 import { User } from "@/models/User";
@@ -8,6 +8,14 @@ import { Order } from "@/models/Order";
 
 export async function POST(request: NextRequest) {
   try {
+    const stripe = getStripe();
+    if (!stripe) {
+      return NextResponse.json(
+        { error: "Stripe not configured" },
+        { status: 503 },
+      );
+    }
+
     await connectDB();
     const { getUser } = getKindeServerSession();
     const user = await getUser();

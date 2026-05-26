@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import connectDB from "@/lib/db";
 import { Order } from "@/models/Order";
 import { Cart } from "@/models/Cart";
 
 export async function POST(request: NextRequest) {
   try {
+    const stripe = getStripe();
+    if (!stripe) {
+      return NextResponse.json(
+        { error: "Stripe not configured" },
+        { status: 503 },
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get("session_id");
     const orderId = searchParams.get("order_id");

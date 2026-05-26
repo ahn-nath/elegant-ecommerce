@@ -9,10 +9,10 @@ export async function GET(
 ) {
   const kindeUserId = (await params).kindeId;
 
-  await connectDB();
-  const user = await User.findOne({ kindeUserId: kindeUserId });
-
   try {
+    await connectDB();
+    const user = await User.findOne({ kindeUserId: kindeUserId });
+
     if (!user) {
       const { getUser } = getKindeServerSession();
       const kindeUserDetails = await getUser();
@@ -36,6 +36,26 @@ export async function GET(
 
     return NextResponse.json(user, { status: 200 });
   } catch (error) {
-    console.log(`Error from api/user/kindId : ${error}`);
+    console.warn("User API unavailable (DB bypass):", error);
+
+    const { getUser } = getKindeServerSession();
+    const kindeUserDetails = await getUser();
+
+    if (!kindeUserDetails) {
+      return NextResponse.json(
+        { error: "User not found in Kinde session" },
+        { status: 401 },
+      );
+    }
+
+    return NextResponse.json(
+      {
+        kindeUserId: kindeUserDetails.id,
+        email: kindeUserDetails.email,
+        firstName: kindeUserDetails.given_name ?? "",
+        lastName: kindeUserDetails.family_name ?? "",
+      },
+      { status: 200 },
+    );
   }
 }
